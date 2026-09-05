@@ -1,6 +1,6 @@
 # Peritoneal Dialysis Adequacy Agent
 
-> **Domain:** Nephrology & Renal Replacement Protocols  
+> **Domain:** Nephrology & Renal Replacement Protocols
 > **Reference Guidelines & Standards:** `KDIGO & KDOQI Clinical Guidelines`
 
 <div align="center">
@@ -18,7 +18,7 @@
 
 ## 📖 What It Does
 
-**Peritoneal Dialysis Adequacy Agent** is an advanced analytical and computational platform implementing 4-Hour Peritoneal Equilibration Test (PET) Transport Classifier.
+**Peritoneal Dialysis Adequacy Agent** is an advanced analytical and computational platform implementing 4-Hour Peritoneal Equilibration Test (PET) Transport Classifier. It evaluates peritoneal dialysis adequacy through multi-agent consensus, providing clinical decision support for nephrology teams.
 
 ---
 
@@ -35,38 +35,83 @@
 
 ---
 
-## 💻 CLI Quickstart & Usage
+## 🚀 Installation
 
-### 1. Guided Interactive Mode
+### Prerequisites
+- Python 3.9 or higher
+- pip (Python package manager)
+
+### Setup
 ```bash
-python cli.py
+# Clone the repository
+git clone https://github.com/abusuraihsakhri/peritoneal-dialysis-adequacy-agent.git
+cd peritoneal-dialysis-adequacy-agent
+
+# Install dependencies
+pip install -e .
+
+# Or install with development dependencies
+pip install -e ".[dev]"
 ```
 
-### 2. Direct Parameterized Evaluation
+### Environment Variables
+Create a `.env` file or set environment variables:
+
 ```bash
-python cli.py --task-id <value> --target <value> --primary <value> --secondary <value>
+# Optional: Set a persistent audit secret key for HMAC-SHA256 audit trail
+# If not set, a random key will be generated for the session
+AUDIT_SECRET_KEY=your-secure-secret-key-here
+```
+
+---
+
+## 💻 CLI Quickstart & Usage
+
+### 1. Run Single Audit Evaluation
+```bash
+python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
+```
+
+### 2. Query the Supervisory Chat
+```bash
+python cli.py chat "What is the current system status?"
+```
+
+### 3. Batch Process CSV Records
+```bash
+python cli.py batch -i sample.csv -o results.csv
+```
+
+### 4. Verify Audit Trail Integrity
+```bash
+python cli.py verify-audit
+```
+
+### 5. Launch FastAPI REST Server
+```bash
+python cli.py serve --host 127.0.0.1 --port 8000
 ```
 
 ### Parameter Reference
-- `--task-id`: Specifies input measurement or parameter value.
-- `--target`: Specifies input measurement or parameter value.
-- `--primary`: Specifies input measurement or parameter value.
-- `--secondary`: Specifies input measurement or parameter value.
-- `--critical`: Specifies input measurement or parameter value.
-- `--status`: Specifies input measurement or parameter value.
-- `--input`: Specifies input measurement or parameter value.
-- `--output`: Specifies input measurement or parameter value.
+| Parameter | Description | Default |
+|:----------|:------------|:--------|
+| `--task-id` | Unique task/case identifier | `TASK-2026-001` |
+| `--target` | Target identifier (patient key, specimen) | `KEY-TARGET-01` |
+| `--primary` | Primary metric value (float) | `28.5` |
+| `--secondary` | Secondary metric value (float) | `14.2` |
+| `--critical` | Flag for critical/emergency cases | `False` |
+| `--status` | Status descriptor (NOMINAL, DISCORDANT, etc.) | `DISCORDANT` |
 
-### Input Data Schema
+### Input Data Schema (CSV Batch)
 
 | Field | Description | Requirement |
 |:------|:------------|:------------|
-| `case_id` | Parameter / observation metric | Required |
-| `patient_synthetic_id` | Parameter / observation metric | Required |
-| `metric_primary` | Parameter / observation metric | Required |
-| `metric_secondary` | Parameter / observation metric | Required |
-| `is_stat` | Parameter / observation metric | Required |
-| `status_flag` | Parameter / observation metric | Required |
+| `task_id` | Unique task identifier | Required |
+| `target_identifier` | Target entity identifier | Required |
+| `primary_metric` | Primary measurement value | Required |
+| `secondary_metric` | Secondary measurement value | Optional |
+| `status_descriptor` | Status code or phenotype | Optional |
+| `is_critical_flag` | Emergency escalation flag | Optional |
 
 ---
 
@@ -82,23 +127,71 @@ python cli.py --task-id <value> --target <value> --primary <value> --secondary <
 
 ## 🧪 Testing & Verification
 
-Run the automated test suite:
-
+### Run the automated test suite:
 ```bash
 pytest -v
 ```
 
-Execute high-throughput batch simulation benchmarks:
-
+### Run with coverage:
 ```bash
-python simulator.py --tasks 1000 --concurrency 8
+pytest -v --cov=agents --cov-report=term-missing
+```
+
+### Execute high-throughput batch simulation benchmarks:
+```bash
+python simulator.py 1000
 ```
 
 ---
 
 ## 🐳 Container Deployment
 
+### Build and run with Docker:
 ```bash
 docker build -t peritoneal-dialysis-adequacy-agent .
-docker run -p 8000:8000 peritoneal-dialysis-adequacy-agent
+docker run -p 8000:8000 -e AUDIT_SECRET_KEY=your-secret-key peritoneal-dialysis-adequacy-agent
 ```
+
+### Using Docker Compose:
+```bash
+docker-compose up -d
+```
+
+---
+
+## 📁 Project Structure
+
+```
+peritoneal-dialysis-adequacy-agent/
+├── agents/                          # Core agent modules
+│   ├── __init__.py                  # Package initialization
+│   ├── api.py                       # FastAPI REST endpoints
+│   ├── base.py                      # Security, PHI guard, audit trail
+│   ├── learning.py                  # Bayesian calibration engine
+│   ├── llm_factory.py               # LLM provider factory
+│   ├── metrics.py                   # Prometheus metrics collector
+│   ├── models.py                    # Pydantic data models
+│   ├── streamer.py                  # WebSocket telemetry streamer
+│   ├── supervisor.py                # Master orchestrator
+│   └── workers.py                   # Specialized worker agents
+├── tests/                           # Test suite
+│   ├── test_enrichment.py           # Enrichment module tests
+│   └── test_peritoneal_dialysis_adequacy_agent.py  # Core agent tests
+├── cli.py                           # Command-line interface
+├── pd_sentinel.py                   # PD-Sentinel standalone module
+├── enrichment.py                    # Feature enrichment engines
+├── simulator.py                     # High-throughput simulation
+├── sample.csv                       # Sample input data
+├── sample_payload.json              # Sample API payload
+├── benchmark_dataset.json           # Benchmark test cases
+├── pyproject.toml                   # Project configuration
+├── Dockerfile                       # Container build
+├── docker-compose.yml               # Container orchestration
+└── README.md                        # This file
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

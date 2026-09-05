@@ -4,8 +4,8 @@ Domain: Nephrology & Dialysis Systems
 Standard: KDIGO / KDOQI Clinical Practice Guidelines
 """
 import uuid
-from typing import Dict, Any, List, Optional
-from .models import SystemTaskPayload, AgentAlert, UrgencyLevel, SystemIntegrityStatus
+from typing import List
+from .models import SystemTaskPayload, AgentAlert, UrgencyLevel
 
 
 class InvariantQCWorker:
