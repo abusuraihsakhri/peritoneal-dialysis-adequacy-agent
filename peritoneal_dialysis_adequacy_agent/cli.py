@@ -111,8 +111,8 @@ def main(argv=None):
                 patient_synthetic_id=r.get("patient_synthetic_id", "SYNTH-01"),
                 primary_metric=float(r.get("metric_primary", r.get("primary_metric", 15.0))),
                 secondary_metric=float(r.get("metric_secondary", r.get("secondary_metric", 5.0))),
-                status_flag=r.get("status_flag", r.get("status_text", "NORMAL")),
-                is_stat=bool(r.get("is_stat", r.get("critical_flag", False))),
+                status_flag=r.get("status_flag", r.get("status_text", r.get("status_descriptor", "NORMAL"))),
+                is_stat=str(r.get("is_stat", r.get("critical_flag", r.get("is_critical_flag", False)))).strip().lower() in ("true", "1", "yes", "y"),
             )
             dossier = coordinator.process_case(case)
             row_dict = dict(r)
