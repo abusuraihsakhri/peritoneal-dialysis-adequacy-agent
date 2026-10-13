@@ -21,9 +21,10 @@ export function pet(dialysateCreatinine, plasmaCreatinine) {
   if (ratio > 1) {
     throw new Error("D/P creatinine exceeds 1; verify sampling, units and assay correction.");
   }
-  const category = ratio < .50 ? "Low"
-    : ratio < .65 ? "Low-average"
-    : ratio < .81 ? "High-average" : "High";
+  const bandRatio = round4(ratio);
+  const category = bandRatio < .50 ? "Low"
+    : bandRatio < .65 ? "Low-average"
+    : bandRatio < .81 ? "High-average" : "High";
   return {
     dp_creatinine_4h: round4(ratio),
     historical_transport_category: category,
