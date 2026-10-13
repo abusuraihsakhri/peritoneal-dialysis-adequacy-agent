@@ -34,11 +34,13 @@ def pet_creatinine(dialysate_creatinine: float, plasma_creatinine: float) -> dic
     ratio = dialysate / plasma
     if ratio > 1:
         raise ValueError("D/P creatinine exceeds 1; verify sampling, units and assay correction")
-    if ratio < 0.50:
+    # Classify the same four-decimal value that is reported to the user.
+    band_ratio = round(ratio, 4)
+    if band_ratio < 0.50:
         category = "Low"
-    elif ratio < 0.65:
+    elif band_ratio < 0.65:
         category = "Low-average"
-    elif ratio < 0.81:
+    elif band_ratio < 0.81:
         category = "High-average"
     else:
         category = "High"
