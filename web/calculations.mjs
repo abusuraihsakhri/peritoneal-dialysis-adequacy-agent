@@ -45,6 +45,9 @@ export function ktv({
   const peritoneal = 7 * d / s * drain / v;
   const renal = hasUrine ? 7 * finite("urine urea", urine_urea) / s
     * finite("24-hour urine volume (L)", daily_urine_volume_l) / v : 0;
+  if (![peritoneal, renal, peritoneal + renal].every(Number.isFinite)) {
+    throw new Error("Calculated weekly Kt/V exceeds the finite numeric range.");
+  }
   return {
     peritoneal_weekly_ktv: round4(peritoneal),
     renal_weekly_ktv: round4(renal),
