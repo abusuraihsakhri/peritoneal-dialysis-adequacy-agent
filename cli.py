@@ -3,7 +3,9 @@ Command Line Interface for Peritoneal Dialysis Adequacy Agent.
 """
 import argparse
 import csv
+import json
 import sys
+from peritoneal_dialysis_adequacy_agent.clinical import pet_creatinine, weekly_ktv
 from pathlib import Path
 from agents.models import SystemTaskPayload
 from agents.supervisor import SystemSupervisor
@@ -42,7 +44,36 @@ def main(argv=None):
     p_serve.add_argument("--host", default="127.0.0.1")
     p_serve.add_argument("--port", type=int, default=8000)
 
+    # Clinically interpretable, numeric educational calculations
+    p_pet = subparsers.add_parser("pet", help="Compute 4-hour D/P creatinine (historical descriptive band)")
+    p_pet.add_argument("--dialysate-creatinine", type=float, required=True)
+    p_pet.add_argument("--plasma-creatinine", type=float, required=True)
+
+    p_ktv = subparsers.add_parser("ktv", help="Compute weekly peritoneal and residual renal urea Kt/V")
+    p_ktv.add_argument("--serum-urea", type=float, required=True)
+    p_ktv.add_argument("--dialysate-urea", type=float, required=True)
+    p_ktv.add_argument("--daily-drain-volume-l", type=float, required=True)
+    p_ktv.add_argument("--v-l", type=float, required=True)
+    p_ktv.add_argument("--urine-urea", type=float)
+    p_ktv.add_argument("--daily-urine-volume-l", type=float)
+
     args = parser.parse_args(argv)
+
+    if args.command in ("pet", "ktv"):
+        try:
+            if args.command == "pet":
+                result = pet_creatinine(args.dialysate_creatinine, args.plasma_creatinine)
+            else:
+                result = weekly_ktv(
+                    args.serum_urea, args.dialysate_urea,
+                    args.daily_drain_volume_l, args.v_l,
+                    args.urine_urea, args.daily_urine_volume_l,
+                )
+        except ValueError as exc:
+            print(f"Invalid input: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps(result, indent=2))
+        return 0
 
     if args.command == "audit":
         payload = SystemTaskPayload(
