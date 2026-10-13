@@ -78,6 +78,8 @@ def weekly_ktv(
         urine_concentration = _number("urine urea", urine_urea)
         urine_volume = _number("24-hour urine volume (L)", daily_urine_volume_l)
         renal = (urine_concentration / serum) * urine_volume * 7 / volume
+    if not all(math.isfinite(x) for x in (peritoneal, renal, peritoneal + renal)):
+        raise ValueError("calculated weekly Kt/V exceeds the finite numeric range")
     return {
         "peritoneal_weekly_ktv": round(peritoneal, 4),
         "renal_weekly_ktv": round(renal, 4),
