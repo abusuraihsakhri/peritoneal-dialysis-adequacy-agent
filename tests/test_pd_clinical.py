@@ -93,3 +93,24 @@ def test_api_pet_and_ktv_and_validation():
         "serum_urea": 50, "dialysate_urea": 40, "daily_drain_volume_l": 10,
         "urea_distribution_volume_l": 40, "urine_urea": 150
     }).status_code == 422
+
+
+def test_packaged_server_exposes_calculations():
+    from peritoneal_dialysis_adequacy_agent.server import create_app
+    client = TestClient(create_app())
+    res = client.post("/api/pet", json={
+        "dialysate_creatinine_4h": 8.1,
+        "plasma_creatinine": 10,
+    })
+    assert res.status_code == 200
+    assert res.json()["historical_transport_category"] == "High"
+    res = client.post("/api/ktv", json={
+        "serum_urea": 50,
+        "dialysate_urea": 40,
+        "daily_drain_volume_l": 10,
+        "urea_distribution_volume_l": 40,
+        "urine_urea": 150,
+        "daily_urine_volume_l": 0.5,
+    })
+    assert res.status_code == 200
+    assert res.json()["total_weekly_ktv"] == 1.6625
