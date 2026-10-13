@@ -5,6 +5,7 @@ import argparse
 import csv
 import json
 import sys
+from .clinical import pet_creatinine, weekly_ktv
 from .models import ClinicalCasePayload
 from .agents import PDCoordinator
 
@@ -37,7 +38,36 @@ def main(argv=None):
     p_serve.add_argument("--host", default="127.0.0.1")
     p_serve.add_argument("--port", type=int, default=8000)
 
+    # Clinically interpretable, numeric educational calculations
+    p_pet = subparsers.add_parser("pet", help="Compute 4-hour D/P creatinine (historical descriptive band)")
+    p_pet.add_argument("--dialysate-creatinine", type=float, required=True)
+    p_pet.add_argument("--plasma-creatinine", type=float, required=True)
+
+    p_ktv = subparsers.add_parser("ktv", help="Compute weekly peritoneal and residual renal urea Kt/V")
+    p_ktv.add_argument("--serum-urea", type=float, required=True)
+    p_ktv.add_argument("--dialysate-urea", type=float, required=True)
+    p_ktv.add_argument("--daily-drain-volume-l", type=float, required=True)
+    p_ktv.add_argument("--v-l", type=float, required=True)
+    p_ktv.add_argument("--urine-urea", type=float)
+    p_ktv.add_argument("--daily-urine-volume-l", type=float)
+
     args = parser.parse_args(argv)
+
+    if args.command in ("pet", "ktv"):
+        try:
+            if args.command == "pet":
+                result = pet_creatinine(args.dialysate_creatinine, args.plasma_creatinine)
+            else:
+                result = weekly_ktv(
+                    args.serum_urea, args.dialysate_urea,
+                    args.daily_drain_volume_l, args.v_l,
+                    args.urine_urea, args.daily_urine_volume_l,
+                )
+        except ValueError as exc:
+            print(f"Invalid input: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps(result, indent=2))
+        return 0
 
     if args.command == "audit":
         case = ClinicalCasePayload(
@@ -81,8 +111,8 @@ def main(argv=None):
                 patient_synthetic_id=r.get("patient_synthetic_id", "SYNTH-01"),
                 primary_metric=float(r.get("metric_primary", r.get("primary_metric", 15.0))),
                 secondary_metric=float(r.get("metric_secondary", r.get("secondary_metric", 5.0))),
-                status_flag=r.get("status_flag", r.get("status_text", "NORMAL")),
-                is_stat=bool(r.get("is_stat", r.get("critical_flag", False))),
+                status_flag=r.get("status_flag", r.get("status_text", r.get("status_descriptor", "NORMAL"))),
+                is_stat=str(r.get("is_stat", r.get("critical_flag", r.get("is_critical_flag", False)))).strip().lower() in ("true", "1", "yes", "y"),
             )
             dossier = coordinator.process_case(case)
             row_dict = dict(r)

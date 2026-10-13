@@ -1,197 +1,100 @@
 # Peritoneal Dialysis Adequacy Agent
 
-> **Domain:** Nephrology & Renal Replacement Protocols
-> **Reference Guidelines & Standards:** `KDIGO & KDOQI Clinical Guidelines`
+Educational tools for calculating **4-hour PET dialysate-to-plasma creatinine (D/P)** and **weekly urea Kt/V** in adult chronic peritoneal dialysis. A standalone browser interface, Python functions, CLI and FastAPI endpoints use the same explicitly documented formulas.
 
-<div align="center">
+**Clinical limitation:** These results do not establish adequacy of dialysis, select an exchange prescription, or replace clinical assessment. The four PET groups use *historical illustrative thresholds*, not universally valid ISPD cutoffs. Do not enter patient-identifiable data.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+## Live application
 
-</div>
+The static interface is maintained in [web/index.html](web/index.html). A GitHub Pages deployment workflow is provided; a public deployment link will be listed here only after the site is confirmed reachable.
 
----
+## Features
 
-## 📖 What It Does
+- **PET:** 4-hour D/P creatinine = dialysate creatinine / plasma creatinine, with historical low, low-average, high-average and high descriptive bands.
+- **Weekly Kt/V:** peritoneal component from pooled 24-hour dialysate urea and drain volume; optional residual renal component from 24-hour urine urea and volume. Total is the sum.
+- **Validation:** finite nonnegative measurements, nonzero plasma/serum denominator and urea distribution volume, paired optional urine inputs, and protection against nonfinite results.
+- **Interfaces:** static browser calculator with local JSON export; Python package functions; CLI commands; FastAPI `/api/pet` and `/api/ktv`.
+- **Legacy compatibility:** existing generic agent audit, supervisory chat, batch commands and API routes remain available. Their arbitrary primary/secondary metric alerts are **demonstrations, not clinical PD algorithms**.
 
-**Peritoneal Dialysis Adequacy Agent** is an advanced analytical and computational platform implementing 4-Hour Peritoneal Equilibration Test (PET) Transport Classifier. It evaluates peritoneal dialysis adequacy through multi-agent consensus, providing clinical decision support for nephrology teams.
+## Browser usage
 
----
+Open the deployed Pages site when available. For local use, serve the directory so ES modules load correctly:
 
-## ⚙️ Key Capabilities & Algorithmic Modules
-
-### 🔬 Core Algorithmic & Evaluation Engines
-
-- **`Severity`** — dedicated module for severity evaluation and state verification.
-- **`DomainKnowledgeRegistry`**: Enterprise domain rules, guideline matrices, and evidence benchmarks.
-- **`AgentAlert`** — dedicated module for agent alert evaluation and state verification.
-- **`DPCreatinineRationAgent`**: Specialized Sub-Agent 1 for peritoneal-dialysis-adequacy-agent
-- **`WeeklyKtVPeritonealAgent`**: Specialized Sub-Agent 2 for peritoneal-dialysis-adequacy-agent
-- **`UltrafiltrationFailureAgent`**: Specialized Sub-Agent 3 for peritoneal-dialysis-adequacy-agent
-
----
-
-## 🚀 Installation
-
-### Prerequisites
-- Python 3.9 or higher
-- pip (Python package manager)
-
-### Setup
 ```bash
-# Clone the repository
-git clone https://github.com/abusuraihsakhri/peritoneal-dialysis-adequacy-agent.git
-cd peritoneal-dialysis-adequacy-agent
-
-# Install dependencies
-pip install -e .
-
-# Or install with development dependencies
-pip install -e ".[dev]"
+python -m http.server 8080 --directory web
+# Open http://127.0.0.1:8080
 ```
 
-### Environment Variables
-Create a `.env` file or set environment variables:
+Enter matching creatinine concentration units for PET. For Kt/V, use matched serum/dialysate/urine urea units, 24-hour effluent and urine volumes in litres, and an independently calculated urea distribution volume V in litres. Leave **both** urine inputs blank to omit the renal component. Results are educational only. Downloaded JSON contains the calculated outputs and interpretation.
+
+**Data handling:** The browser calculation runs entirely in JavaScript without a backend, account, telemetry or persistent storage; no clinical input is uploaded by the application. The server/API legacy components have separate runtime and security considerations. Regex-based identifier detection is not sufficient to certify HIPAA compliance. Use synthetic data.
+
+## Python installation
+
+Python 3.10 or newer:
 
 ```bash
-# Optional: Set a persistent audit secret key for HMAC-SHA256 audit trail
-# If not set, a random key will be generated for the session
-AUDIT_SECRET_KEY=your-secure-secret-key-here
+python -m pip install -e ".[api,dev]"
+python -m pytest -q
+node --test tests/web.test.mjs
 ```
 
----
+A regular installation requires only Pydantic; use `.[api]` to install FastAPI and Uvicorn, and `.[dev]` for test/build tooling. Node.js 22 or newer is used for browser-module regression tests, not for the deployed app.
 
-## 💻 CLI Quickstart & Usage
-
-### 1. Run Single Audit Evaluation
 ```bash
-python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
-```
+# 4-hour PET D/P creatinine, illustrative transport band
+peritoneal-dialysis-adequacy-agent pet --dialysate-creatinine 6.8 --plasma-creatinine 10
 
-### 2. Query the Supervisory Chat
-```bash
-python cli.py chat "What is the current system status?"
-```
+# 24-hour collection-based weekly urea Kt/V (including residual renal)
+peritoneal-dialysis-adequacy-agent ktv --serum-urea 50 --dialysate-urea 40 \
+  --daily-drain-volume-l 10 --v-l 40 --urine-urea 150 --daily-urine-volume-l 0.5
 
-### 3. Batch Process CSV Records
-```bash
+# Legacy generic agent commands (not a clinical PET/Kt/V interpretation)
+python cli.py audit --task-id DEMO-1 --primary 28.5 --secondary 14.2
 python cli.py batch -i sample.csv -o results.csv
-```
-
-### 4. Verify Audit Trail Integrity
-```bash
 python cli.py verify-audit
 ```
 
-### 5. Launch FastAPI REST Server
+The historic `peritoneal-dialysis-adequacy-engine` console command remains as an alias. The source functions are `pet_creatinine` and `weekly_ktv` in `peritoneal_dialysis_adequacy_agent/clinical.py`.
+
+## API and container
+
 ```bash
 python cli.py serve --host 127.0.0.1 --port 8000
+# Visit http://127.0.0.1:8000/docs
 ```
 
-### Parameter Reference
-| Parameter | Description | Default |
-|:----------|:------------|:--------|
-| `--task-id` | Unique task/case identifier | `TASK-2026-001` |
-| `--target` | Target identifier (patient key, specimen) | `KEY-TARGET-01` |
-| `--primary` | Primary metric value (float) | `28.5` |
-| `--secondary` | Secondary metric value (float) | `14.2` |
-| `--critical` | Flag for critical/emergency cases | `False` |
-| `--status` | Status descriptor (NOMINAL, DISCORDANT, etc.) | `DISCORDANT` |
-
-### Input Data Schema (CSV Batch)
-
-| Field | Description | Requirement |
-|:------|:------------|:------------|
-| `task_id` | Unique task identifier | Required |
-| `target_identifier` | Target entity identifier | Required |
-| `primary_metric` | Primary measurement value | Required |
-| `secondary_metric` | Secondary measurement value | Optional |
-| `status_descriptor` | Status code or phenotype | Optional |
-| `is_critical_flag` | Emergency escalation flag | Optional |
-
----
-
-## 🛡️ Security & Enterprise Architecture
-
-* **Zero-PHI Outbound Interceptor:** Active AST and regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers.
-* **Tamper-Evident HMAC-SHA256 Audit Trail:** Chained, cryptographically signed logs for every evaluation and state transition.
-* **Air-Gapped LLM Reasoning Adapter:** Agnostic integration for local Ollama instances (`llama3`, `mistral`), Claude 3.5 Sonnet, GPT-4o, and deterministic test mocks.
-* **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
-* **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
-
----
-
-## 🧪 Testing & Verification
-
-### Run the automated test suite:
 ```bash
-pytest -v
+curl -X POST http://127.0.0.1:8000/api/pet \
+  -H "Content-Type: application/json" \
+  -d '{"dialysate_creatinine_4h":6.8,"plasma_creatinine":10}'
+
+curl -X POST http://127.0.0.1:8000/api/ktv \
+  -H "Content-Type: application/json" \
+  -d '{"serum_urea":50,"dialysate_urea":40,"daily_drain_volume_l":10,"urea_distribution_volume_l":40}'
 ```
 
-### Run with coverage:
+For Docker Compose, set a unique runtime `AUDIT_SECRET_KEY` in your environment before launching:
+
 ```bash
-pytest -v --cov=agents --cov-report=term-missing
+export AUDIT_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
+docker compose up --build
 ```
 
-### Execute high-throughput batch simulation benchmarks:
-```bash
-python simulator.py 1000
-```
+The legacy audit trail is an **in-memory HMAC hash chain**; it is not persisted across restarts. Its verification recomputes entry signatures but cannot reconstruct discarded original event payloads. Never reuse the key previously included in repository history, and do not expose the API publicly without authentication and access controls.
 
----
+## Method, evidence and limitations
 
-## 🐳 Container Deployment
+- **PET:** A standardized PET protocol is needed; 4-hour D/P creatinine measurements depend on sampling and assay correction. Historical example cutoffs of 0.50, 0.65, and 0.81 are descriptive rather than universal diagnostic thresholds. The ISPD 2021 membrane guidance favors interpretation of peritoneal solute transfer rate and appropriate local context: [Morelle et al., 2021](https://doi.org/10.1177/0896860820982218).
+- **Kt/V:** Weekly peritoneal = `7 × (D_urea / P_urea) × daily_effluent_L / V_L`; residual renal = `7 × (U_urea / P_urea) × daily_urine_L / V_L`. These approximate clearances must be interpreted with symptom burden, volume status, biochemical measures, residual kidney function and individual goals: [Brown et al., ISPD 2020](https://doi.org/10.1177/0896860819895364).
+- **Caveat:** Current clinical recommendations do not establish a single Kt/V number as proof of adequate dialysis. A healthcare professional must review any clinical use; this repository is not validated as a medical device.
 
-### Build and run with Docker:
-```bash
-docker build -t peritoneal-dialysis-adequacy-agent .
-docker run -p 8000:8000 -e AUDIT_SECRET_KEY=your-secret-key peritoneal-dialysis-adequacy-agent
-```
+## Quality checks and deployment
 
-### Using Docker Compose:
-```bash
-docker-compose up -d
-```
+The CI workflow runs Python 3.10–3.12 tests, Python package build, Node browser formula tests and dependency auditing. A separate workflow deploys the static `web/` directory to GitHub Pages from `master` when repository Pages is enabled. The browser needs no Pyodide or backend because these equations are implemented natively in JavaScript.
 
----
+## Technology and license
 
-## 📁 Project Structure
+Python 3.10+, Pydantic 2, optional FastAPI/Uvicorn, vanilla JavaScript ES modules, HTML/CSS, pytest and Node.js tests. Modern evergreen desktop and mobile browsers with ES module support are required; no older-browser support is claimed.
 
-```
-peritoneal-dialysis-adequacy-agent/
-├── agents/                          # Core agent modules
-│   ├── __init__.py                  # Package initialization
-│   ├── api.py                       # FastAPI REST endpoints
-│   ├── base.py                      # Security, PHI guard, audit trail
-│   ├── learning.py                  # Bayesian calibration engine
-│   ├── llm_factory.py               # LLM provider factory
-│   ├── metrics.py                   # Prometheus metrics collector
-│   ├── models.py                    # Pydantic data models
-│   ├── streamer.py                  # WebSocket telemetry streamer
-│   ├── supervisor.py                # Master orchestrator
-│   └── workers.py                   # Specialized worker agents
-├── tests/                           # Test suite
-│   ├── test_enrichment.py           # Enrichment module tests
-│   └── test_peritoneal_dialysis_adequacy_agent.py  # Core agent tests
-├── cli.py                           # Command-line interface
-├── pd_sentinel.py                   # PD-Sentinel standalone module
-├── enrichment.py                    # Feature enrichment engines
-├── simulator.py                     # High-throughput simulation
-├── sample.csv                       # Sample input data
-├── sample_payload.json              # Sample API payload
-├── benchmark_dataset.json           # Benchmark test cases
-├── pyproject.toml                   # Project configuration
-├── Dockerfile                       # Container build
-├── docker-compose.yml               # Container orchestration
-└── README.md                        # This file
-```
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Released under the [MIT License](LICENSE).

@@ -93,7 +93,7 @@ class PDCoordinator:
             "stat_critical_alerts": stat_count,
             "warning_alerts": warn_count,
             "alerts": [a.to_dict() for a in all_alerts],
-            "guideline_standard": "KDOQI Hemodialysis Adequacy & KDIGO CKD 2024",
+            "guideline_standard": "Legacy demonstration; no guideline-derived thresholds",
             "consensus_summary": f"Multi-agent supervision completed across 3 sub-agents with status [{status.value}].",
         }
 
@@ -105,6 +105,6 @@ class PDCoordinator:
         if "status" in q or "summary" in q:
             return f"PD-Sentinel: Peritoneal Equilibration Test (PET) & Transport Status Classifier currently tracking {len(self.case_registry)} cases in on-premises memory."
         elif "guideline" in q or "standard" in q:
-            return "Active clinical surveillance operates under KDOQI Hemodialysis Adequacy & KDIGO CKD 2024 validated protocols."
+            return "The legacy alert demonstration does not implement validated clinical guidelines."
         else:
-            return f"PD-Sentinel: Peritoneal Equilibration Test (PET) & Transport Status Classifier executive agent online. Zero-PHI air-gapped monitoring active."
+            return f"PD-Sentinel: Peritoneal Equilibration Test (PET) & Transport Status Classifier legacy demonstration responder online; no certified PHI controls or clinical monitoring."
