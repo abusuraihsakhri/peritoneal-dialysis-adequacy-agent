@@ -1,6 +1,6 @@
 """
 Enrichment Feature Implementation for peritoneal-dialysis-adequacy-agent.
-Generated based on domain-specific requirements in specifications.
+Legacy demonstration features. Generic thresholds are not validated clinical algorithms.
 """
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional
@@ -37,13 +37,13 @@ class FeaturesEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Features: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Features: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = FeaturesEngineResult(
             feature_name="Features",
@@ -87,13 +87,13 @@ class RealtimeEgfrTrendingDashboardEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Real-Time eGFR Trending Dashboard: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Real-Time eGFR Trending Dashboard: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = RealtimeEgfrTrendingDashboardEngineResult(
             feature_name="Real-Time eGFR Trending Dashboard",
@@ -137,13 +137,13 @@ class DialysisAdequacyMonitoringEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Dialysis Adequacy Monitoring: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Dialysis Adequacy Monitoring: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = DialysisAdequacyMonitoringEngineResult(
             feature_name="Dialysis Adequacy Monitoring",
@@ -187,13 +187,13 @@ class FluidBalanceManagementEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Fluid Balance Management Engine: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Fluid Balance Management Engine: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = FluidBalanceManagementEngineResult(
             feature_name="Fluid Balance Management Engine",
@@ -237,13 +237,13 @@ class MineralBoneDisorderMbdTracker:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Mineral Bone Disorder (MBD) Tracker: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Mineral Bone Disorder (MBD) Tracker: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = MineralBoneDisorderMbdTrackerResult(
             feature_name="Mineral Bone Disorder (MBD) Tracker",
@@ -287,13 +287,13 @@ class AnemiaManagementProtocolEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Anemia Management Protocol: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Anemia Management Protocol: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = AnemiaManagementProtocolEngineResult(
             feature_name="Anemia Management Protocol",
@@ -337,13 +337,13 @@ class MulticenterCkdRegistryIntegrationEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Multi-Center CKD Registry Integration: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Multi-Center CKD Registry Integration: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = MulticenterCkdRegistryIntegrationEngineResult(
             feature_name="Multi-Center CKD Registry Integration",
@@ -387,13 +387,13 @@ class NephrotoxicDrugAlertSystemEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Nephrotoxic Drug Alert System: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative software alert only; clinical decisions require validated protocols.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Nephrotoxic Drug Alert System: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Illustrative threshold alert only; do not use for clinical escalation.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Below illustrative software threshold; no clinical conclusion can be drawn.")
 
         res = NephrotoxicDrugAlertSystemEngineResult(
             feature_name="Nephrotoxic Drug Alert System",
