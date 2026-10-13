@@ -10,7 +10,9 @@ function finite(name, value, positive = false) {
   }
   return n;
 }
-const round4 = n => Math.round((n + Number.EPSILON) * 10000) / 10000;
+const round4 = n => Math.abs(n) >= 1e12
+  ? n
+  : Math.round((n + Number.EPSILON) * 10000) / 10000;
 
 export function pet(dialysateCreatinine, plasmaCreatinine) {
   const d = finite("4-hour dialysate creatinine", dialysateCreatinine);
